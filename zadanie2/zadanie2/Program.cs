@@ -5,16 +5,27 @@ using System.Text;
 // Klasa reprezentująca komórkę tabeli
 abstract class Cell
 {
-    abstract public string ToString();
-
+    public abstract Cell Clone(); // Metoda klonująca
+    public abstract void SetValue(object value); // Metoda do ustawiania wartości
+    public abstract override string ToString();
 }
 class TextCell : Cell
 {
     private string value;
 
-    public TextCell(string value)
+    public TextCell(string value = "")
     {
         this.value = value;
+    }
+
+    public override Cell Clone()
+    {
+        return new TextCell(this.value); // Klonowanie obiektu
+    }
+
+    public override void SetValue(object value)
+    {
+        this.value = value.ToString();
     }
 
     public override string ToString()
@@ -22,13 +33,25 @@ class TextCell : Cell
         return value.PadRight(15);
     }
 }
+
+// Konkretna klasa dla liczb
 class NumberCell : Cell
 {
     private int value;
 
-    public NumberCell(int value)
+    public NumberCell(int value = 0)
     {
         this.value = value;
+    }
+
+    public override Cell Clone()
+    {
+        return new NumberCell(this.value);
+    }
+
+    public override void SetValue(object value)
+    {
+        this.value = Convert.ToInt32(value);
     }
 
     public override string ToString()
@@ -36,13 +59,25 @@ class NumberCell : Cell
         return value.ToString().PadRight(15);
     }
 }
-class BoolCell : Cell
+
+// Konkretna klasa dla wartości logicznych
+class BooleanCell : Cell
 {
     private bool value;
 
-    public BoolCell(bool value)
+    public BooleanCell(bool value = false)
     {
         this.value = value;
+    }
+
+    public override Cell Clone()
+    {
+        return new BooleanCell(this.value);
+    }
+
+    public override void SetValue(object value)
+    {
+        this.value = Convert.ToBoolean(value);
     }
 
     public override string ToString()
@@ -50,53 +85,28 @@ class BoolCell : Cell
         return value.ToString().PadRight(15);
     }
 }
-
 // Klasa reprezentująca nagłówek kolumny w tabeli
-abstract class Header
+class Header
 {
     public string Name { get; }
+    private readonly Cell cellPrototype; // Prototyp komórki
 
-    public Header(string name)
+    public Header(string name, Cell cellPrototype)
     {
         Name = name;
+        this.cellPrototype = cellPrototype;
     }
-    public abstract Cell CreateCell(object value);
-    public abstract Cell CreateDefaultCell();
-}
-class TextHeader : Header
-{
-    public TextHeader(string name) : base(name) { }
-    public override Cell CreateCell(object value)
+
+    public Cell CreateCell(object value)
     {
-        return new TextCell(value.ToString());
+        var newCell = cellPrototype.Clone(); // Klonowanie prototypu
+        newCell.SetValue(value); // Ustawienie wartości w nowo sklonowanej komórce
+        return newCell;
     }
-    public override Cell CreateDefaultCell()
+
+    public Cell CreateDefaultCell()
     {
-        return new TextCell("");
-    }
-}
-class NumberHeader : Header
-{
-    public NumberHeader(string name) : base(name) { }
-    public override Cell CreateCell(object value)
-    {
-        return new NumberCell((int)value);
-    }
-    public override Cell CreateDefaultCell()
-    {
-        return new NumberCell(0);
-    }
-}
-class BoolHeader : Header
-{
-    public BoolHeader(string name) : base(name) { }
-    public override Cell CreateCell(object value)
-    {
-        return new BoolCell((bool)value);
-    }
-    public override Cell CreateDefaultCell()
-    {
-        return new BoolCell(false);
+        return cellPrototype.Clone(); // Tworzenie komórki domyślnej (pustej)
     }
 }
 // Klasa reprezentująca tabelę
@@ -175,9 +185,9 @@ class Program
         Table table = new Table();
 
         // Dodajemy kolumny
-        table.AddColumn(new TextHeader("Name"));
-        table.AddColumn(new NumberHeader("Age"));
-        table.AddColumn(new BoolHeader("Is Student"));
+        table.AddColumn(new Header("Name",new TextCell()));
+        table.AddColumn(new Header("Age",new NumberCell()));
+        table.AddColumn(new Header("Is Student", new BooleanCell()));
 
         // Dodajemy wiersze
         table.AddRow("Alice", 30, false);
