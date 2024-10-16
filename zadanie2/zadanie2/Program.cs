@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Text;
 
 // Klasa reprezentująca komórkę tabeli
-class Cell
+abstract class Cell
+{
+    abstract public string ToString();
+
+}
+class TextCell : Cell
 {
     private string value;
 
-    public Cell(string value)
+    public TextCell(string value)
     {
         this.value = value;
     }
@@ -17,9 +22,37 @@ class Cell
         return value.PadRight(15);
     }
 }
+class NumberCell : Cell
+{
+    private int value;
+
+    public NumberCell(int value)
+    {
+        this.value = value;
+    }
+
+    public override string ToString()
+    {
+        return value.ToString().PadRight(15);
+    }
+}
+class BoolCell : Cell
+{
+    private bool value;
+
+    public BoolCell(bool value)
+    {
+        this.value = value;
+    }
+
+    public override string ToString()
+    {
+        return value.ToString().PadRight(15);
+    }
+}
 
 // Klasa reprezentująca nagłówek kolumny w tabeli
-class Header
+abstract class Header
 {
     public string Name { get; }
 
@@ -27,8 +60,45 @@ class Header
     {
         Name = name;
     }
+    public abstract Cell CreateCell(object value);
+    public abstract Cell CreateDefaultCell();
 }
-
+class TextHeader : Header
+{
+    public TextHeader(string name) : base(name) { }
+    public override Cell CreateCell(object value)
+    {
+        return new TextCell(value.ToString());
+    }
+    public override Cell CreateDefaultCell()
+    {
+        return new TextCell("");
+    }
+}
+class NumberHeader : Header
+{
+    public NumberHeader(string name) : base(name) { }
+    public override Cell CreateCell(object value)
+    {
+        return new NumberCell((int)value);
+    }
+    public override Cell CreateDefaultCell()
+    {
+        return new NumberCell(0);
+    }
+}
+class BoolHeader : Header
+{
+    public BoolHeader(string name) : base(name) { }
+    public override Cell CreateCell(object value)
+    {
+        return new BoolCell((bool)value);
+    }
+    public override Cell CreateDefaultCell()
+    {
+        return new BoolCell(false);
+    }
+}
 // Klasa reprezentująca tabelę
 class Table
 {
@@ -48,11 +118,11 @@ class Table
         // Dodajemy puste komórki do każdego z istniejących wierszy
         foreach (var row in rows)
         {
-            row.Add(new Cell(""));
+            row.Add(header.CreateDefaultCell());
         }
     }
 
-    public void AddRow(params string[] cellValues)
+    public void AddRow(params object[] cellValues)
     {
         if (cellValues.Length != headers.Count)
         {
@@ -61,9 +131,9 @@ class Table
 
         // Dodajemy wiersz wypełniony komórkami z wartością
         var newRow = new List<Cell>();
-        foreach (var value in cellValues)
+        for (int i = 0; i < cellValues.Length; i++)
         {
-            newRow.Add(new Cell(value));
+            newRow.Add(headers[i].CreateCell(cellValues[i]));
         }
 
         rows.Add(newRow);
@@ -105,14 +175,14 @@ class Program
         Table table = new Table();
 
         // Dodajemy kolumny
-        table.AddColumn(new Header("Name"));
-        table.AddColumn(new Header("Age"));
-        table.AddColumn(new Header("Is Student"));
+        table.AddColumn(new TextHeader("Name"));
+        table.AddColumn(new NumberHeader("Age"));
+        table.AddColumn(new BoolHeader("Is Student"));
 
         // Dodajemy wiersze
-        table.AddRow("Alice", "30", "False");
-        table.AddRow("Bob", "25", "True");
-        table.AddRow("Charlie", "35", "False");
+        table.AddRow("Alice", 30, false);
+        table.AddRow("Bob", 30, true);
+        table.AddRow("Charlie", 35, false);
 
         // Wyświetlamy tabelę
         Console.WriteLine(table.ToString());
