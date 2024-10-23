@@ -53,37 +53,57 @@ class Drawing
         return $"Rysunek: \n{string.Join("\n", Figures)}";
     }
 }
+class DrawingBuilder {
+    private List<Figure> figures = new List<Figure>();
+   public DrawingBuilder MoveTo(int x, int y)
+    {
+        figures.Add(new Figure(new List<Point> { new Point(x, y) }));
+        return this;
+    }
+    public DrawingBuilder LineTo(int x, int y)
+    {
+        figures[figures.Count - 1].Points.Add(new Point(x, y));
+        return this;
+    }
+    public DrawingBuilder Close()
+    {
+        figures[figures.Count - 1].Points.Add(figures[figures.Count - 1].Points[0]);
+        return this;
+    }
+    public Drawing Build()
+    {
+        return new Drawing(figures);
+    }
+
+}
 
 class Program
 {
     static void Main(string[] args)
     {
         // Tworzenie punktów dla pierwszej figury
-        var punktyFigury1 = new List<Point>
-        {
-            new Point(100, 400),
-            new Point(200, 50),
-            new Point(450, 300),
-            new Point(250, 250),
-            new Point(100, 400)  // Zamknięcie figury - powrót do punktu początkowego
-        };
+        // Używamy Buildera, aby stworzyć rysunek z dwóch figur
+        var drawingBuilder = new DrawingBuilder();
 
-        // Tworzenie punktów dla drugiej figury
-        var punktyFigury2 = new List<Point>
-        {
-            new Point(300, 350),
-            new Point(350, 100),
-            new Point(50, 200)  // Figura otwarta - punkt początkowy i końcowy się różnią
-        };
+        // Pierwsza figura
+        drawingBuilder
+            .MoveTo(100, 400)  // Początek figury
+            .LineTo(200, 50)   // Dodajemy kolejne punkty
+            .LineTo(450, 300)
+            .LineTo(250, 250)
+            .Close();          // Zamykamy figurę
 
-        // Tworzenie figur na podstawie list punktów
-        var figura1 = new Figure(punktyFigury1);
-        var figura2 = new Figure(punktyFigury2);
+        // Druga figura
+        drawingBuilder
+            .MoveTo(300, 350)  // Początek figury
+            .LineTo(350, 100)
+            .LineTo(50, 200);  // Figura może być otwarta
 
-        // Tworzenie rysunku z dwóch figur
-        var rysunek = new Drawing(new List<Figure> { figura1, figura2 });
+        // Odbieramy gotowy rysunek
+        Drawing drawing = drawingBuilder.Build();
 
+        // Wypisujemy rysunek do konsoli
+        Console.WriteLine(drawing);
         // Wypisanie rysunku do konsoli
-        Console.WriteLine(rysunek);
     }
 }
