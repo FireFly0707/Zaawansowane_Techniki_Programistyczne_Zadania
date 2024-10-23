@@ -76,34 +76,55 @@ class DrawingBuilder {
     }
 
 }
-
-class Program
+class Director
 {
-    static void Main(string[] args)
+    private DrawingBuilder builder;
+    public Director(DrawingBuilder builder)
     {
-        // Tworzenie punktów dla pierwszej figury
-        // Używamy Buildera, aby stworzyć rysunek z dwóch figur
-        var drawingBuilder = new DrawingBuilder();
+        this.builder = builder;
+    }
+    public void ConstructFromString(string input)
+    {
+        List<string> instructions = input.Split(' ').ToList();
+        for (int i = 0; i < instructions.Count; i++)
+        {
+            if (instructions[i] == "M")
+            {
+                builder.MoveTo(int.Parse(instructions[i + 1]), int.Parse(instructions[i + 2]));
+                i += 2;
+            }
+            else if (instructions[i] == "L")
+            {
+                builder.LineTo(int.Parse(instructions[i + 1]), int.Parse(instructions[i + 2]));
+                i += 2;
+            }
+            else if (instructions[i] == "Z")
+            {
+                builder.Close();
+            }
+            else
+            {
+                throw new Exception("Invalid instruction");
+            }
+        }
 
-        // Pierwsza figura
-        drawingBuilder
-            .MoveTo(100, 400)  // Początek figury
-            .LineTo(200, 50)   // Dodajemy kolejne punkty
-            .LineTo(450, 300)
-            .LineTo(250, 250)
-            .Close();          // Zamykamy figurę
+    }
 
-        // Druga figura
-        drawingBuilder
-            .MoveTo(300, 350)  // Początek figury
-            .LineTo(350, 100)
-            .LineTo(50, 200);  // Figura może być otwarta
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var drawingBuilder = new DrawingBuilder();
 
-        // Odbieramy gotowy rysunek
-        Drawing drawing = drawingBuilder.Build();
+            // Przykład użycia z Directorem
+            Director director = new Director(drawingBuilder);
+            director.ConstructFromString("M 100 400 L 200 50 L 450 300 L 250 250 Z M 300 350 L 350 100 L 50 200");
 
-        // Wypisujemy rysunek do konsoli
-        Console.WriteLine(drawing);
-        // Wypisanie rysunku do konsoli
+            // Odbieramy gotowy rysunek
+            Drawing drawing = drawingBuilder.Build();
+
+            // Wypisujemy rysunek do konsoli
+            Console.WriteLine(drawing);
+        }
     }
 }
