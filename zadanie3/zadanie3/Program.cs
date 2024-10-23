@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using static System.Net.Mime.MediaTypeNames;
+
+using System.Drawing;
+using System.Drawing.Imaging;
 
 // Klasa reprezentująca punkt
 class Point
@@ -109,22 +113,61 @@ class Director
         }
 
     }
-
-    class Program
+    class DrawingService
     {
-        static void Main(string[] args)
+        public static void Draw(Drawing drawing)
         {
-            var drawingBuilder = new DrawingBuilder();
+            // Ustawiamy rozmiar obrazu
+            int width = 500;
+            int height = 500;
 
-            // Przykład użycia z Directorem
-            Director director = new Director(drawingBuilder);
-            director.ConstructFromString("M 100 400 L 200 50 L 450 300 L 250 250 Z M 300 350 L 350 100 L 50 200");
+            // Tworzymy obiekt Bitmap (obraz) o rozmiarze 500x500 pikseli
+            using (Bitmap bitmap = new Bitmap(width, height))
+            {
+                // Tworzymy obiekt Graphics do rysowania na obrazie
+                using (Graphics g = Graphics.FromImage(bitmap))
+                {
+                    // Wypełniamy tło na biało
+                    g.Clear(Color.White);
 
-            // Odbieramy gotowy rysunek
-            Drawing drawing = drawingBuilder.Build();
+                    // Ustawiamy czarne pióro o grubości 2 pikseli
+                    Pen blackPen = new Pen(Color.Black, 2);
 
-            // Wypisujemy rysunek do konsoli
-            Console.WriteLine(drawing);
+                    foreach(var figure in drawing.Figures)
+                    {
+                        // Tworzymy tablicę punktów z listy punktów figury
+                        System.Drawing.Point[] points = figure.Points.Select(p => new System.Drawing.Point(p.X, p.Y)).ToArray();
+
+                        // Rysujemy linię łączącą punkty
+                        g.DrawLines(blackPen, points);
+                    }
+
+                }
+
+                // Zapisujemy obraz jako plik PNG
+                bitmap.Save("C:\\Users\\jakub\\OneDrive\\Pulpit\\studia\\V semestr informatyka\\zaawansowane techniki programistyczne\\zadanie3\\zadanie3\\Drawings\\drawing.png", ImageFormat.Png);
+
+                Console.WriteLine("Rysunek został zapisany jako drawing.png");
+            }
+        }
+
+        class Program
+        {
+            static void Main(string[] args)
+            {
+                var drawingBuilder = new DrawingBuilder();
+
+                // Przykład użycia z Directorem
+                Director director = new Director(drawingBuilder);
+                director.ConstructFromString("M 100 400 L 200 50 L 450 300 L 250 250 Z M 300 350 L 350 100 L 50 200");
+
+                // Odbieramy gotowy rysunek
+                Drawing drawing = drawingBuilder.Build();
+
+                // Wypisujemy rysunek do konsoli
+                Console.WriteLine(drawing);
+                DrawingService.Draw(drawing);
+            }
         }
     }
 }
