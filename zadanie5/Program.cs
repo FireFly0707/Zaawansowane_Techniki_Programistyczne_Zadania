@@ -11,24 +11,58 @@ public interface ITableDataSource
 }
 public class DictionaryAdapter : ITableDataSource
 {
+    public Dictionary<string, int> dictionary;
+    private List<string> keys;
+    public DictionaryAdapter(Dictionary<string, int> dictionary)
+    {
+        this.dictionary = dictionary;
+        this.keys = dictionary.Keys.ToList();
+    }
     public string GetCellData(int rowIndex, int columnIndex)
     {
-        throw new NotImplementedException();
+        if (rowIndex < 0 || rowIndex >= keys.Count)
+        {
+            throw new Exception("Invalid row index");
+        }
+
+        string key = keys[rowIndex];
+
+        if (columnIndex == 0)
+        {
+            return key;
+        }
+        else if (columnIndex == 1)
+        {
+            return dictionary[key].ToString();
+        }
+        else
+        {
+            throw new Exception("Invalid column index");
+        }
     }
+
 
     public int GetColumnCount()
     {
-        throw new NotImplementedException();
+        return 2;
     }
 
     public string GetColumnName(int columnIndex)
     {
-        throw new NotImplementedException();
+       if(columnIndex == 0)
+        {
+            return "Key";
+        }
+        else if (columnIndex == 1)
+        {
+            return "Value";
+        }
+        else throw new Exception("Invalid column index");
     }
 
     public int GetRowCount()
     {
-        throw new NotImplementedException();
+        return dictionary.Count;
     }
 }
 public class ArrayAdapter : ITableDataSource
@@ -40,7 +74,15 @@ public class ArrayAdapter : ITableDataSource
     }
     public string GetCellData(int rowIndex, int columnIndex)
     {
-        throw new NotImplementedException();
+        if(columnIndex == 0)
+        {
+            return rowIndex.ToString();
+        }
+        else if (columnIndex == 1)
+        {
+            return array[rowIndex].ToString();
+        }
+        else throw new Exception("Invalid column index");
     }
 
     public int GetColumnCount()
@@ -70,24 +112,54 @@ public class ArrayAdapter : ITableDataSource
 }
 public class UserListAdapter : ITableDataSource
 {
+    public List<User> users;
+    public UserListAdapter(List<User> users)
+    {
+        this.users = users;
+    }
     public string GetCellData(int rowIndex, int columnIndex)
     {
-        throw new NotImplementedException();
+
+        if(columnIndex == 0)
+        {
+            return users[rowIndex].Name;
+        }
+        else if (columnIndex == 1)
+        {
+            return users[rowIndex].Age.ToString();
+        }
+        else if (columnIndex == 2)
+        {
+            return users[rowIndex].Status;
+        }
+        else throw new Exception("Invalid column index");
     }
 
     public int GetColumnCount()
     {
-        throw new NotImplementedException();
+        return 3;
     }
 
     public string GetColumnName(int columnIndex)
     {
-        throw new NotImplementedException();
+       if(columnIndex == 0 )
+        {
+            return "Name";
+        }
+        else if (columnIndex == 1)
+        {
+            return "Age";
+        }
+        else if (columnIndex == 2)
+        {
+            return "Status";
+        }
+        else throw new Exception("Invalid column index");
     }
 
     public int GetRowCount()
     {
-        throw new NotImplementedException();
+        return users.Count;
     }
 }
 public class TableService
