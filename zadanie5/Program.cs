@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 public interface ITableDataSource
 {
@@ -65,6 +66,63 @@ public class DictionaryAdapter : ITableDataSource
         return dictionary.Count;
     }
 }
+public class DictionaryAdapter<TKey,TValue> : ITableDataSource
+{
+    public Dictionary<TKey, TValue> dictionary;
+    private List<TKey> keys;
+    public DictionaryAdapter(Dictionary<TKey, TValue> dictionary)
+    {
+        this.dictionary = dictionary;
+        this.keys = dictionary.Keys.ToList();
+    }
+    public string GetCellData(int rowIndex, int columnIndex)
+    {
+        if (rowIndex < 0 || rowIndex >= keys.Count)
+        {
+            throw new Exception("Invalid row index");
+        }
+
+        var key = keys[rowIndex];
+
+        if (columnIndex == 0)
+        {
+            return key.ToString();
+        }
+        else if (columnIndex == 1)
+        {
+            return dictionary[key].ToString();
+        }
+        else
+        {
+            throw new Exception("Invalid column index");
+        }
+    }
+
+
+    public int GetColumnCount()
+    {
+        return 2;
+    }
+
+    public string GetColumnName(int columnIndex)
+    {
+        if (columnIndex == 0)
+        {
+            return "Key";
+        }
+        else if (columnIndex == 1)
+        {
+            return "Value";
+        }
+        else throw new Exception("Invalid column index");
+    }
+
+    public int GetRowCount()
+    {
+        return dictionary.Count;
+    }
+}
+
 public class ArrayAdapter : ITableDataSource
 {
     private int[] array;
@@ -110,9 +168,49 @@ public class ArrayAdapter : ITableDataSource
         return array.Length;
     }
 }
+public class ArrayAdapter<T> : ITableDataSource
+{
+    private T[] array;
+    public ArrayAdapter(T[] array)
+    {
+        this.array = array;
+    }
+    public string GetCellData(int rowIndex, int columnIndex)
+    {
+        if (columnIndex == 0)
+        {
+            return rowIndex.ToString();
+        }
+        else if (columnIndex == 1)
+        {
+            return array[rowIndex].ToString();
+        }
+        else throw new Exception("Invalid column index");
+    }
+
+    public int GetColumnCount()
+    {
+        return 2;
+    }
+
+    public string GetColumnName(int columnIndex)
+    {
+        return columnIndex switch
+        {
+            0 => "Index",
+            1 => "Value",
+            _ => throw new Exception("Invalid column index")
+        };
+    }
+
+    public int GetRowCount()
+    {
+        return array.Length;
+    }
+}
 public class UserListAdapter : ITableDataSource
 {
-    public List<User> users;
+    private List<User> users;
     public UserListAdapter(List<User> users)
     {
         this.users = users;
@@ -161,6 +259,61 @@ public class UserListAdapter : ITableDataSource
     {
         return users.Count;
     }
+}
+public class ObjectListAdapter<T> : ITableDataSource
+{
+    private List<T> objects;
+    private PropertyInfo[] properties;
+    public ObjectListAdapter(List<T> objects)
+    {
+        this.objects = objects;
+        properties = typeof(T).GetProperties();
+    }
+    public string GetCellData(int rowIndex, int columnIndex)
+    {
+
+        if (columnIndex == 0)
+        {
+            return users[rowIndex].Name;
+        }
+        else if (columnIndex == 1)
+        {
+            return users[rowIndex].Age.ToString();
+        }
+        else if (columnIndex == 2)
+        {
+            return users[rowIndex].Status;
+        }
+        else throw new Exception("Invalid column index");
+    }
+
+    public int GetColumnCount()
+    {
+        return ;
+    }
+
+    public string GetColumnName(int columnIndex)
+    {
+        if (columnIndex == 0)
+        {
+            return "Name";
+        }
+        else if (columnIndex == 1)
+        {
+            return "Age";
+        }
+        else if (columnIndex == 2)
+        {
+            return "Status";
+        }
+        else throw new Exception("Invalid column index");
+    }
+
+    public int GetRowCount()
+    {
+        return users.Count;
+    }
+
 }
 public class TableService
 {
