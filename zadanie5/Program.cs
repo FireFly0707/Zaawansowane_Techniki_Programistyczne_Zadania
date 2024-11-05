@@ -262,56 +262,43 @@ public class UserListAdapter : ITableDataSource
 }
 public class ObjectListAdapter<T> : ITableDataSource
 {
-    private List<T> objects;
+    private List<T> list;
     private PropertyInfo[] properties;
-    public ObjectListAdapter(List<T> objects)
+    public ObjectListAdapter(List<T> list)
     {
-        this.objects = objects;
+        this.list = list;
         properties = typeof(T).GetProperties();
     }
     public string GetCellData(int rowIndex, int columnIndex)
     {
+        if (rowIndex < 0 || rowIndex >= list.Count)
+            throw new Exception("Invalid row index");
 
-        if (columnIndex == 0)
-        {
-            return users[rowIndex].Name;
-        }
-        else if (columnIndex == 1)
-        {
-            return users[rowIndex].Age.ToString();
-        }
-        else if (columnIndex == 2)
-        {
-            return users[rowIndex].Status;
-        }
-        else throw new Exception("Invalid column index");
+        if (columnIndex < 0 || columnIndex >= properties.Length)
+            throw new Exception("Invalid column index");
+
+        T item = list[rowIndex];
+        object value = properties[columnIndex].GetValue(item);
+
+        return value?.ToString() ?? "null";
     }
 
     public int GetColumnCount()
     {
-        return ;
+        return properties.Length ;
     }
 
     public string GetColumnName(int columnIndex)
     {
-        if (columnIndex == 0)
-        {
-            return "Name";
-        }
-        else if (columnIndex == 1)
-        {
-            return "Age";
-        }
-        else if (columnIndex == 2)
-        {
-            return "Status";
-        }
-        else throw new Exception("Invalid column index");
+        if (columnIndex < 0 || columnIndex >= properties.Length)
+            throw new Exception("Invalid column index");
+
+        return properties[columnIndex].Name;
     }
 
     public int GetRowCount()
     {
-        return users.Count;
+        return list.Count;
     }
 
 }
