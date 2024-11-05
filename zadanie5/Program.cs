@@ -260,11 +260,11 @@ public class UserListAdapter : ITableDataSource
         return users.Count;
     }
 }
-public class ObjectListAdapter<T> : ITableDataSource
+public class ListAdapter<T> : ITableDataSource
 {
     private List<T> list;
     private PropertyInfo[] properties;
-    public ObjectListAdapter(List<T> list)
+    public ListAdapter(List<T> list)
     {
         this.list = list;
         properties = typeof(T).GetProperties();
@@ -349,31 +349,31 @@ public class Program
     {
         TableService tableService = new TableService();
 
-        // Test adaptera dla tablicy liczb całkowitych
-        int[] numbersArray = { 10, 20, 30, 40, 50 };
-        ITableDataSource arrayAdapter = new ArrayAdapter(numbersArray);
+        // Test adaptera dla tablicy dowolnego typu
+        string[] stringArray = { "Apple", "Banana", "Cherry" };
+        ITableDataSource arrayAdapter = new ArrayAdapter<string>(stringArray);
         Console.WriteLine("Array Table:");
         tableService.DisplayTable(arrayAdapter);
 
-        // Test adaptera dla słownika
-        Dictionary<string, int> dictionary = new Dictionary<string, int>
+        // Test adaptera dla słownika dowolnego typu
+        Dictionary<int, string> dictionary = new Dictionary<int, string>
         {
-            { "One", 1 },
-            { "Two", 2 },
-            { "Three", 3 }
+            { 1, "One" },
+            { 2, "Two" },
+            { 3, "Three" }
         };
-        ITableDataSource dictionaryAdapter = new DictionaryAdapter(dictionary);
+        ITableDataSource dictionaryAdapter = new DictionaryAdapter<int, string>(dictionary);
         Console.WriteLine("\nDictionary Table:");
         tableService.DisplayTable(dictionaryAdapter);
 
-        // Test adaptera dla listy użytkowników
+        // Test adaptera dla listy dowolnych obiektów
         List<User> users = new List<User>
         {
             new User("Alice", 25, "Active"),
             new User("Bob", 30, "Inactive"),
             new User("Charlie", 35, "Active")
         };
-        ITableDataSource userListAdapter = new UserListAdapter(users);
+        ITableDataSource userListAdapter = new ListAdapter<User>(users);
         Console.WriteLine("\nUser List Table:");
         tableService.DisplayTable(userListAdapter);
     }
