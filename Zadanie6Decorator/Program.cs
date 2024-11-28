@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Zadanie6Decorator;
 
 public interface IMessage
 {
@@ -59,81 +60,7 @@ public class MessageBox : IMessageBox
     }
 
 }
-public abstract class MessageBoxDecorator : IMessageBox
-{
-    protected readonly IMessageBox innerMessageBox;
 
-    public MessageBoxDecorator(IMessageBox messageBox)
-    {
-        innerMessageBox = messageBox;
-    }
-
-    public virtual void AddMessage(IMessage message)
-    {
-        innerMessageBox.AddMessage(message);
-    }
-
-    public virtual IMessage GetMessageById(int id)
-    {
-        return innerMessageBox.GetMessageById(id);
-    }
-
-    public virtual void DisplayAllMessageTitles()
-    {
-        innerMessageBox.DisplayAllMessageTitles();
-    }
-}
-public class BlockedWordsDecorator : MessageBoxDecorator
-{
-    private readonly List<string> blockedWords;
-
-    public BlockedWordsDecorator(IMessageBox messageBox, List<string> blockedWords)
-        : base(messageBox)
-    {
-        this.blockedWords = blockedWords;
-    }
-
-    public override void AddMessage(IMessage message)
-    {
-        foreach (var word in blockedWords)
-        {
-            if (message.Content.Contains(word, StringComparison.OrdinalIgnoreCase))
-            {
-                Console.WriteLine($"Wiadomość \"{message.Title}\" została zablokowana (zawiera zakazane słowo: \"{word}\").");
-                return;
-            }
-        }
-        base.AddMessage(message); // Dodanie wiadomości, jeśli przeszła filtr.
-    }
-}
-public class HiddenMessageDecorator : MessageBoxDecorator
-{
-    private readonly List<string> blockedWords;
-
-    // Obiekt Null Object (ukryta wiadomość).
-    private readonly IMessage hiddenMessage = new Message("Ukryta wiadomość", "Treść tej wiadomości została ukryta.");
-
-    public HiddenMessageDecorator(IMessageBox messageBox, List<string> blockedWords)
-        : base(messageBox)
-    {
-        this.blockedWords = blockedWords;
-    }
-
-    public override IMessage GetMessageById(int id)
-    {
-        var message = base.GetMessageById(id);
-        if (message == null) return null;
-
-        foreach (var word in blockedWords)
-        {
-            if (message.Content.Contains(word, StringComparison.OrdinalIgnoreCase))
-            {
-                return hiddenMessage;
-            }
-        }
-        return message; // Zwraca wiadomość, jeśli nie zawiera zakazanych słów.
-    }
-}
 
 class Program
 {
