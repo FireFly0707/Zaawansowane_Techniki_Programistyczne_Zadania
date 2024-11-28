@@ -148,36 +148,43 @@ namespace Zadanie6Decorator
     }
     public class MessageWithReadFlag : IMessage
     {
-        private readonly IMessage originalMessage;
-        private bool isRead;
+        private readonly IMessage _originalMessage;
+        private bool _isRead;
 
         public int Id
         {
-            get => originalMessage.Id;
-            set => originalMessage.Id = value;
+            get => _originalMessage.Id;
+            set => _originalMessage.Id = value;
         }
 
         public string Title
         {
-            get => isRead ? $"{originalMessage.Title} [Odczytana]" : $"{originalMessage.Title} [Nowa]";
-            set => originalMessage.Title = value;
+            get => $"{_originalMessage.Title} [{(_isRead ? "Odczytana" : "Nowa")}]";
+            set => _originalMessage.Title = value;
         }
 
         public string Content
         {
-            get => originalMessage.Content;
-            set => originalMessage.Content = value;
+            get
+            {
+                // Przy pierwszym odczycie oznacz wiadomość jako odczytaną
+                MarkAsRead();
+                return _originalMessage.Content;
+            }
+            set => _originalMessage.Content = value;
         }
+
+        public bool IsRead => _isRead; // Właściwość do sprawdzania stanu odczytu
 
         public MessageWithReadFlag(IMessage originalMessage)
         {
-            this.originalMessage = originalMessage;
-            isRead = false; // Domyślnie wiadomość jest "Nowa"
+            _originalMessage = originalMessage;
+            _isRead = false; // Domyślnie wiadomość jest "Nowa"
         }
 
         public void MarkAsRead()
         {
-            isRead = true; // Oznacz wiadomość jako "Odczytana"
+            _isRead = true;
         }
     }
 

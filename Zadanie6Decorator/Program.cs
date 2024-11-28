@@ -72,17 +72,29 @@ class Program
 {
     static void Main(string[] args)
     {
-        MessageBox messageBox = new MessageBox();
+        IMessageBox messageBox = new MessageBox();
 
-        // Dodanie przykładowych wiadomości
-        messageBox.AddMessage(new Message("Powiadomienie o spotkaniu", "Spotkanie zespołu odbędzie się w piątek o godzinie 10:00."));
-        messageBox.AddMessage(new Message("Nowe zasady pracy zdalnej", "Od przyszłego miesiąca obowiązują nowe zasady pracy zdalnej."));
-        messageBox.AddMessage(new Message("Wyniki kwartalne", "Wyniki finansowe za ostatni kwartał pokazują wzrost o 15%."));
+        // Test 1: Wiadomość z dekoratorem daty
+        var message1 = new Message("Powiadomienie o spotkaniu", "Spotkanie zespołu odbędzie się w piątek o godzinie 10:00.");
+        var messageWithDate = new MessageWithDate(message1, DateTime.Now.AddDays(-2));
+        messageBox.AddMessage(messageWithDate);
+
+        // Test 2: Wiadomość z dekoratorem flagi odczytu
+        var message2 = new Message("Nowe zasady pracy zdalnej", "Od przyszłego miesiąca obowiązują nowe zasady pracy zdalnej.");
+        var messageWithReadFlag = new MessageWithReadFlag(message2);
+        messageBox.AddMessage(messageWithReadFlag);
+
+        // Test 3: Kombinacja dekoratorów: flaga odczytu + data wysłania
+        var message3 = new Message("Wyniki kwartalne", "Wyniki finansowe za ostatni kwartał pokazują wzrost o 15%.");
+        var messageWithDateAndReadFlag = new MessageWithReadFlag(new MessageWithDate(message3, DateTime.Now.AddDays(-5)));
+        messageBox.AddMessage(messageWithDateAndReadFlag);
 
         bool running = true;
+
         while (running)
         {
             // Wyświetlanie wszystkich tematów wiadomości
+            Console.WriteLine("\nLista wszystkich wiadomości:");
             messageBox.DisplayAllMessageTitles();
 
             Console.WriteLine("\nWybierz ID wiadomości do wyświetlenia (lub 0, aby zakończyć): ");
@@ -100,6 +112,7 @@ class Program
                     {
                         Console.WriteLine($"\nTytuł: {message.Title}");
                         Console.WriteLine($"Treść: {message.Content}");
+                        Console.WriteLine($"--- Wiadomość została odczytana: {(message is MessageWithReadFlag readFlag && readFlag.IsRead)}");
                     }
                     else
                     {
@@ -114,3 +127,4 @@ class Program
         }
     }
 }
+
