@@ -146,6 +146,40 @@ namespace Zadanie6Decorator
             currentDate = currentDate.AddDays(1); // Zwiększ datę o 1 dzień
         }
     }
+    public class MessageWithReadFlag : IMessage
+    {
+        private readonly IMessage originalMessage;
+        private bool isRead;
+
+        public int Id
+        {
+            get => originalMessage.Id;
+            set => originalMessage.Id = value;
+        }
+
+        public string Title
+        {
+            get => isRead ? $"{originalMessage.Title} [Odczytana]" : $"{originalMessage.Title} [Nowa]";
+            set => originalMessage.Title = value;
+        }
+
+        public string Content
+        {
+            get => originalMessage.Content;
+            set => originalMessage.Content = value;
+        }
+
+        public MessageWithReadFlag(IMessage originalMessage)
+        {
+            this.originalMessage = originalMessage;
+            isRead = false; // Domyślnie wiadomość jest "Nowa"
+        }
+
+        public void MarkAsRead()
+        {
+            isRead = true; // Oznacz wiadomość jako "Odczytana"
+        }
+    }
 
 
 

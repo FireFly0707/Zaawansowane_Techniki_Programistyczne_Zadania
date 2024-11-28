@@ -35,12 +35,18 @@ public class MessageBox : IMessageBox
     public void AddMessage(IMessage message)
     {
         message.Id = nextId++;
-        messages.Add(message);
+        IMessage decoratedMessage = new MessageWithReadFlag(message);
+        messages.Add(decoratedMessage);
     }
 
     public IMessage GetMessageById(int id)
     {
-        return messages.Find(m => m.Id == id);
+        var message = messages.Find(m => m.Id == id);
+        if (message is MessageWithReadFlag messageWithReadFlag)
+        {
+            messageWithReadFlag.MarkAsRead(); // Oznacz jako odczytaną
+        }
+        return message;
     }
 
     public void DisplayAllMessageTitles()
@@ -58,8 +64,8 @@ public class MessageBox : IMessageBox
             }
         }
     }
-
 }
+
 
 
 class Program
