@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
-public class Message
+public interface IMessage
+{
+    int Id { get; set; }
+    string Title { get; set; }
+    string Content { get; set; }
+}
+public class Message : IMessage
 {
     public int Id { get; set; }
     public string Title { get; set; }
@@ -16,23 +21,23 @@ public class Message
 }
 public interface IMessageBox
 {
-    void AddMessage(Message message);
-    Message GetMessageById(int id);
+    void AddMessage(IMessage message);
+    IMessage GetMessageById(int id);
     void DisplayAllMessageTitles();
 }
 
 public class MessageBox : IMessageBox
 {
-    private List<Message> messages = new List<Message>();
+    private List<IMessage> messages = new List<IMessage>();
     private int nextId = 1;
 
-    public void AddMessage(Message message)
+    public void AddMessage(IMessage message)
     {
         message.Id = nextId++;
         messages.Add(message);
     }
 
-    public Message GetMessageById(int id)
+    public IMessage GetMessageById(int id)
     {
         return messages.Find(m => m.Id == id);
     }
@@ -51,6 +56,82 @@ public class MessageBox : IMessageBox
                 Console.WriteLine($"ID: {message.Id} - {message.Title}");
             }
         }
+    }
+
+}
+public abstract class MessageBoxDecorator : IMessageBox
+{
+    protected readonly IMessageBox innerMessageBox;
+
+    public MessageBoxDecorator(IMessageBox messageBox)
+    {
+        innerMessageBox = messageBox;
+    }
+
+    public virtual void AddMessage(IMessage message)
+    {
+        innerMessageBox.AddMessage(message);
+    }
+
+    public virtual IMessage GetMessageById(int id)
+    {
+        return innerMessageBox.GetMessageById(id);
+    }
+
+    public virtual void DisplayAllMessageTitles()
+    {
+        innerMessageBox.DisplayAllMessageTitles();
+    }
+}
+public class BlockedWordsDecorator : MessageBoxDecorator
+{
+    private readonly List<string> blockedWords;
+
+    public BlockedWordsDecorator(IMessageBox messageBox, List<string> blockedWords)
+        : base(messageBox)
+    {
+        this.blockedWords = blockedWords;
+    }
+
+    public override void AddMessage(IMessage message)
+    {
+        foreach (var word in blockedWords)
+        {
+            if (message.Content.Contains(word, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"Wiadomość \"{message.Title}\" została zablokowana (zawiera zakazane słowo: \"{word}\").");
+                return;
+            }
+        }
+        base.AddMessage(message); // Dodanie wiadomości, jeśli przeszła filtr.
+    }
+}
+public class HiddenMessageDecorator : MessageBoxDecorator
+{
+    private readonly List<string> blockedWords;
+
+    // Obiekt Null Object (ukryta wiadomość).
+    private readonly IMessage hiddenMessage = new Message("Ukryta wiadomość", "Treść tej wiadomości została ukryta.");
+
+    public HiddenMessageDecorator(IMessageBox messageBox, List<string> blockedWords)
+        : base(messageBox)
+    {
+        this.blockedWords = blockedWords;
+    }
+
+    public override IMessage GetMessageById(int id)
+    {
+        var message = base.GetMessageById(id);
+        if (message == null) return null;
+
+        foreach (var word in blockedWords)
+        {
+            if (message.Content.Contains(word, StringComparison.OrdinalIgnoreCase))
+            {
+                return hiddenMessage;
+            }
+        }
+        return message; // Zwraca wiadomość, jeśli nie zawiera zakazanych słów.
     }
 }
 
