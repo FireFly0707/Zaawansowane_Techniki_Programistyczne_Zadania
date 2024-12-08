@@ -13,6 +13,7 @@ namespace Chess
     public partial class ChessBoardForm : Form
     {
         private readonly ChessBoard board; // Instancja szachownicy
+        private readonly CommandManager commandManager;
         private const string defaultNotation = @"
             ra8 nb8 bc8 qd8 ke8 bf8 ng8 rh8
             pa7 pb7 pc7 pd7 pe7 pf7 pg7 ph7
@@ -29,21 +30,32 @@ namespace Chess
 
             // Przekazanie szachownicy do wyświetlającej ją kontrolki
             chessBoardControl.ChessBoard = board;
+            // Inicjalizacja CommandManager
+            commandManager = new CommandManager();
+            chessBoardControl.CommandManager = commandManager;
         }
 
         private void undoButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Not implemented yet!");
+            commandManager.Undo();
+            chessBoardControl.Invalidate();
         }
 
         private void redoButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Not implemented yet!");
+            commandManager.Redo();
+            chessBoardControl.Invalidate();
         }
 
         private void replayButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Not implemented yet!");
+            // Ustawienie szachownicy na początkową pozycję
+            board.InitializeFromString(defaultNotation);
+            chessBoardControl.Invalidate();
+
+            // Odtworzenie wszystkich ruchów
+            commandManager.Replay();
+            chessBoardControl.Invalidate();
         }
 
         private void resetButton_Click(object sender, EventArgs e)

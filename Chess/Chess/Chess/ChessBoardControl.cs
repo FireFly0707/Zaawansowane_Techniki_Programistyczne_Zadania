@@ -13,6 +13,7 @@ namespace Chess
     public partial class ChessBoardControl : Control
     {
         public ChessBoard? ChessBoard { get; set; } // Odwołanie do obiektu ChessBoard
+        public CommandManager? CommandManager { get; set; }
 
         private int tileSize = 60; // Rozmiar pojedynczego pola
         private int offsetX;    // Przesunięcie szachownicy w poziomie
@@ -196,15 +197,11 @@ namespace Chess
                     if (ChessBoard?.GetPiece(fromRow, fromCol) != null)
                     {
                         // Przesunięcie figury
-                        if (ChessBoard.MovePiece(fromRow, fromCol, row, col))
+                        if (CommandManager != null)
                         {
-                            selectedTile = null; // Anuluj zaznaczenie po wykonaniu ruchu
+                            CommandManager.ExecuteCommand(new MovePieceCommand(ChessBoard, fromRow, fromCol, row, col));
                         }
-                        else
-                        {
-                            MessageBox.Show("Nie można przesunąć figury na to pole.");
-                            selectedTile = null;
-                        }
+                        selectedTile = null; // Anuluj zaznaczenie po wykonaniu ruchu
                     }
                     else
                     {
