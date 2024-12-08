@@ -47,14 +47,14 @@ namespace Chess
             chessBoardControl.Invalidate();
         }
 
-        private void replayButton_Click(object sender, EventArgs e)
+        private async void replayButton_Click(object sender, EventArgs e)
         {
             // Ustawienie szachownicy na początkową pozycję
             board.InitializeFromString(defaultNotation);
             chessBoardControl.Invalidate();
 
             // Odtworzenie wszystkich ruchów
-            commandManager.Replay();
+            await commandManager.Replay();
             chessBoardControl.Invalidate();
         }
 

@@ -6,12 +6,14 @@ namespace Chess
     {
         private readonly Stack<ICommand> _executedCommands = new Stack<ICommand>();
         private readonly Stack<ICommand> _undoneCommands = new Stack<ICommand>();
+        private readonly List<ICommand> _commandHistory = new List<ICommand>();
 
         public void ExecuteCommand(ICommand command)
         {
             command.Execute();
             _executedCommands.Push(command);
             _undoneCommands.Clear();
+            _commandHistory.Add(command);
         }
 
         public void Undo()
@@ -34,13 +36,14 @@ namespace Chess
             }
         }
 
-        public void Replay()
+        public async Task Replay()
         {
             foreach (var command in _executedCommands)
             {
                 command.Execute();
-                System.Threading.Thread.Sleep(500); // Pause for 500ms between moves
+                await Task.Delay(500); // Pause for 500ms between moves
             }
         }
+        
     }
 }
