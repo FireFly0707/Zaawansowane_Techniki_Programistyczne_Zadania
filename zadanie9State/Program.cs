@@ -70,53 +70,53 @@ public class Program
     {
         Order order = new Order();
 
-        // Dodawanie produktów
+       
         order.AddProduct("Laptop");
         order.AddProduct("Myszka");
         order.ShowOrderDetails();
 
-        // Próba spakowania produktu przed złożeniem zamówienia
+       
         order.PackProduct("Laptop");
 
-        // Próba wysłania zamówienia przed złożeniem zamówienia
+       
         order.ShipOrder();
 
-        // Próba potwierdzenia płatności przed złożeniem zamówienia
+        
         order.ConfirmPayment();
 
-        // Złożenie zamówienia
+        
         order.SubmitOrder();
 
-        // Próba dodania produktu po złożeniu zamówienia
+       
         order.AddProduct("Klawiatura");
 
-        // Potwierdzenie płatności
+        
         order.ConfirmPayment();
 
-        // Próba ponownego potwierdzenia płatności
+       
         order.ConfirmPayment();
 
-        // Spakowanie produktów
+      
         order.PackProduct("Laptop");
         order.PackProduct("Myszka");
         order.ShowOrderDetails();
 
-        // Próba spakowania produktu, który już został spakowany
+        
         order.PackProduct("Laptop");
 
-        // Próba dodania produktu po opłaceniu zamówienia
+        
         order.AddProduct("Monitor");
 
-        // Wysłanie zamówienia
+        
         order.ShipOrder();
 
-        // Próba wysłania zamówienia, które już zostało wysłane
+        
         order.ShipOrder();
 
-        // Próba anulowania zamówienia, które już zostało wysłane
+        
         order.CancelOrder();
 
-        // Wyświetlenie szczegółów zamówienia
+        
         order.ShowOrderDetails();
     }
 }
