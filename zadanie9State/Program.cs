@@ -5,19 +5,13 @@ using zadanie9State;
 public class Order
 {
     public Dictionary<string, bool> Products { get; } = new(); // Produkty: nazwa -> czy spakowany
-    private bool isPaid = false; // Czy zamówienie zostało opłacone?
+    public bool isPaid; // Czy zamówienie jest opłacone
     private IOrderState currentState;
 
     // Dodaje produkt do zamówienia
     public void AddProduct(string product)
     {
-        if (isPaid)
-        {
-            Console.WriteLine("Nie można dodawać produktów do opłaconego zamówienia.");
-            return;
-        }
-        Products.Add(product, false);
-        Console.WriteLine($"Dodano produkt: {product}");
+        currentState.AddProduct(product);
     }
     public void SetState(IOrderState state)
     {
@@ -27,40 +21,31 @@ public class Order
     // Zatwierdza zamówienie
     public void SubmitOrder()
     {
-        Console.WriteLine("Zamówienie zostało złożone i oczekuje na opłatę.");
+        currentState.SubmitOrder();
     }
 
     // Oznacza zamówienie jako opłacone
     public void ConfirmPayment()
     {
-        isPaid = true;
-        Console.WriteLine("Płatność została potwierdzona.");
+       currentState.ConfirmPayment();
     }
 
     // Oznacza dany produkt jako spakowany
     public void PackProduct(string product)
     {
-        Products[product] = true;
-        Console.WriteLine($"Produkt {product} został spakowany.");
+       currentState.PackProduct(product);
     }
 
     // Wysyła zamówienie
     public void ShipOrder()
     {
-        Console.WriteLine("Zamówienie zostało wysłane.");
+        currentState.ShipOrder();
     }
 
     // Anuluje zamówienie
     public void CancelOrder()
     {
-        if (isPaid)
-        {
-            Console.WriteLine("Środki zostały zwrócone klientowi.");
-        }
-
-        Console.WriteLine("Zamówienie zostało anulowane.");
-        Products.Clear();
-        isPaid = false;
+        currentState.CancelOrder();
     }
 
     // Wyświetla szczegóły zamówienia
